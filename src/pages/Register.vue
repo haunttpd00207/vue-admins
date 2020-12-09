@@ -2,7 +2,7 @@
   <b-card header="Form Register">
     <b-overlay :show="show" rounded="sm">
       <b-form @submit.prevent="onSubmit" @reset="onReset">
-        <b-alert v-if="error" variant="danger" show> {{ error }}</b-alert>
+        <b-alert v-if="errors" variant="danger" show> {{ errors }}</b-alert>
         <b-form-group label="Name:" label-for="name">
           <b-form-input
             id="name"
@@ -38,7 +38,7 @@
   </b-card>
 </template>
 <script>
-import firebase from "firebase";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   data() {
@@ -48,28 +48,26 @@ export default {
         email: "",
         password: "",
       },
-      error: null,
       show: false,
     };
   },
+  computed: {
+    ...mapGetters(["errors"]),
+  },
   methods: {
+    ...mapActions(["signUp"]),
     async onSubmit() {
       this.show = true;
-      await firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.form.email, this.form.password)
-        .then((data) => {
-          data.user
-            .updateProfile({
-              displayName: this.form.name,
-            })
-            .then(() => {
-              this.$router.replace({ name: "Dashboard" });
-            });
-        })
-        .catch((err) => {
-          this.error = err.message;
+      await this.signUp({
+        email: this.form.email,
+        password: this.form.password,
+        displayName: this.form.name,
+      });
+      if (!this.errors) {
+        this.$router.replace({
+          name: "Dashboard",
         });
+      }
       this.show = false;
     },
     onReset() {

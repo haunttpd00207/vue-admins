@@ -1,15 +1,15 @@
 <template>
   <b-navbar toggleable="lg" type="dark" variant="info">
-    <router-link to="/" class="navbar-brand">Home</router-link>
+    <router-link to="/dashboard" class="navbar-brand">Home</router-link>
     <b-collapse id="nav-collapse" is-nav>
       <!-- Right aligned nav items -->
-      <template v-if="user.loggedIn">
+      <template v-if="isAuthenticated">
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown right>
             <template #button-content>
-              <em>{{ user.data.displayName }}</em>
+              <em>{{ currentUser.displayName }}</em>
             </template>
-            <b-dropdown-item @click="signOut">Sign Out</b-dropdown-item>
+            <b-dropdown-item @click="signingOut">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </template>
@@ -23,24 +23,18 @@
   </b-navbar>
 </template>
 <script>
-import { mapGetters } from "vuex";
-import firebase from "firebase";
+import { mapGetters, mapActions } from "vuex";
 export default {
   computed: {
-    ...mapGetters({
-      user: "user",
-    }),
+    ...mapGetters(["currentUser", "isAuthenticated"]),
   },
   methods: {
-    signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.$router.replace({
-            name: "Login",
-          });
-        });
+    ...mapActions(["signOut"]),
+    async signingOut() {
+      await this.signOut();
+      await this.$router.replace({
+        name: "Login",
+      });
     },
   },
 };
