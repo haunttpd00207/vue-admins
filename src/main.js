@@ -11,7 +11,7 @@ Vue.use(IconsPlugin)
 
 import firebase from "firebase";
 var firebaseConfig = {
-  apiKey: "AIzaSyBHy3Q_0t1507WgdSsZDnI8n8XeoMeiAy0",
+  apiKey: process.env.VUE_APP_ENV_FIRE_BASE_KEY,
   authDomain: "vue-managers-ac712.firebaseapp.com",
   projectId: "vue-managers-ac712",
   storageBucket: "vue-managers-ac712.appspot.com",
@@ -19,8 +19,8 @@ var firebaseConfig = {
   appId: "1:427923273393:web:c985e5601113a711f8d490"
 };
 firebase.initializeApp(firebaseConfig);
-firebase.auth().onAuthStateChanged(user => {
-  store.dispatch("fetchUser", user);
+firebase.auth().onAuthStateChanged(async user => {
+  await store.dispatch("fetchUser", user);
 });
 
 Vue.config.productionTip = false

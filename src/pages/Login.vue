@@ -2,7 +2,7 @@
   <b-card header="Form Login">
     <b-overlay :show="show" rounded="sm">
       <b-form @submit.prevent="onSubmit" @reset="onReset">
-        <b-alert v-if="error" variant="danger" show> {{ error }}</b-alert>
+        <b-alert v-if="errors" variant="danger" show> {{ errors }}</b-alert>
         <b-form-group
           id="input-group-1"
           label="Email address:"
@@ -36,10 +36,8 @@
     </b-overlay>
   </b-card>
 </template>
-
 <script>
-import firebase from "firebase";
-
+import { mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
@@ -47,22 +45,25 @@ export default {
         email: "",
         password: "",
       },
-      error: null,
       show: false,
     };
   },
+  computed: {
+    ...mapGetters(["errors"]),
+  },
   methods: {
+    ...mapActions(["signIn"]),
     async onSubmit() {
       this.show = true;
-      await firebase
-        .auth()
-        .signInWithEmailAndPassword(this.form.email, this.form.password)
-        .then(() => {
-          this.$router.replace({ name: "Dashboard" });
-        })
-        .catch((err) => {
-          this.error = err.message;
+      await this.signIn({
+        email: this.form.email,
+        password: this.form.password,
+      });
+      if (!this.errors) {
+        this.$router.replace({
+          name: "Dashboard",
         });
+      }
       this.show = false;
     },
     onReset() {
